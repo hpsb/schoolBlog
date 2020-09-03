@@ -145,7 +145,7 @@ const FilePond = vueFilePond();
 
 // unsaved changes warning
 const unsaved = ref(false);
-window.addEventListener("beforeunload", event => {
+const onBeforeUnload = (event: BeforeUnloadEvent) => {
   if (unsaved.value) {
     const answer = window.confirm(
       "Are you sure you want to leave? There are unsaved changes"
@@ -155,7 +155,7 @@ window.addEventListener("beforeunload", event => {
       event.returnValue = "";
     }
   }
-});
+};
 
 export default defineComponent({
   name: "PostEdit",
@@ -178,6 +178,9 @@ export default defineComponent({
     const thumbnail = ref<HTMLInputElement>(null);
     const imageUploading = ref<boolean>(false);
     const isModOrAbove = ref<boolean>(userStore.getters.isModOrAbove);
+
+    // add unload listener
+    window.addEventListener("beforeunload", onBeforeUnload);
 
     // reload categories
     categoryStore.mutations.loadCategories();
@@ -423,6 +426,10 @@ export default defineComponent({
       if (answer) next();
       else next(false);
     } else next();
+  },
+
+  beforeDestroy() {
+    window.removeEventListener("beforeunload", onBeforeUnload);
   }
 });
 </script>
