@@ -232,9 +232,9 @@ export default defineComponent({
         filename = await fileService.uploadFile(post.value.id, file, "image");
       } catch (err) {
         root.$toasted.error("Error uploading file");
-        if (err.status === 413) {
+        if (err.statusCode === 413) {
           // 413 request entitiy too large
-          root.$toasted.error("File too large\nLimit is 100MB");
+          root.$toasted.error("File too large! Limit is 30MB");
         }
         imageUploading.value = false;
 
@@ -301,9 +301,9 @@ export default defineComponent({
             thumbnail: result
           });
         } catch (err) {
-          if (err.status === 413) {
+          if (err.statusCode === 413) {
             // 413 request entitiy too large
-            root.$toasted.error("File too large\nLimit is 100MB");
+            root.$toasted.error("File too large! Limit is 30MB");
           } else {
             root.$toasted.error("Error uploading thumbnail");
             imageUploading.value = false;
@@ -319,12 +319,11 @@ export default defineComponent({
     const removeThumbnail = async () => {
       if (!post.value?.thumbnail) return;
 
-      const result = await fileService.deleteFile(post.value.thumbnail);
-      if ("success" in result) {
+      try {
+        await fileService.deleteFile(post.value.thumbnail);
         post.value.thumbnail = "";
-      } else {
+      } catch {
         root.$toasted.error("Error deleting file");
-        throw result.message;
       }
     };
 

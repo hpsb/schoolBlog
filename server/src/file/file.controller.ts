@@ -67,7 +67,10 @@ export class FileController {
   @UseInterceptors(
     FormatResponseInterceptor,
     FileInterceptor('file', {
-      storage: multer.memoryStorage()
+      storage: multer.memoryStorage(),
+      limits: {
+        fileSize: 30_000_000
+      }
     })
   )
   @Post('/upload')
@@ -125,6 +128,7 @@ export class FileController {
     return filename;
   }
 
+  @UseInterceptors(FormatResponseInterceptor)
   @Delete(":filename")
   async removeFile(
     @Param('filename') filename: string,

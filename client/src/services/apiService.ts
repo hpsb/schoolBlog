@@ -38,6 +38,10 @@ api.interceptors.response.use(
       app.$router.push({ name: "Login" });
       throw new Error();
     }
+    // define statusCode since response from nginx is html
+    else if (res.response.status === 413) {
+      throw { statusCode: 413 };
+    }
     // pass any other errors along
     else if (res.response.data?.message instanceof Array) {
       res.response.data.message = res.response.data.message.join(", ");

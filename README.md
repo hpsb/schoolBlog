@@ -104,6 +104,8 @@ server {
 
     include snippets/self-signed.conf;
 
+    client_max_body_size 30M;
+
     location / {
         root /home/udbhav/code/schoolBlog/server/public;
         index index.html;

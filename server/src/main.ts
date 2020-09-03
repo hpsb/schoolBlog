@@ -26,7 +26,7 @@ async function bootstrap() {
   app.use(passport.session());
 
   // request size limit
-  app.use(json({ limit: '80MB' }));
+  app.use(json({ limit: '30MB' }));
 
   // use global validation pipe
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
