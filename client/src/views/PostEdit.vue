@@ -422,7 +422,7 @@ export default defineComponent({
       );
       if (answer) next();
       else next(false);
-    }
+    } else next();
   }
 });
 </script>
