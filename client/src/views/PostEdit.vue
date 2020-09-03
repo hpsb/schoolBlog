@@ -14,6 +14,7 @@
         name="title"
         v-model="post.title"
         placeholder="Title"
+        @input="unsaved = true"
       />
 
       <div id="editor">
@@ -21,13 +22,18 @@
           v-model="post.body"
           :options="quillOptions"
           @ready="editorReady"
+          @change="unsaved = true"
           class="prose prose-lg font-serif"
         />
       </div>
 
       <div class="bg-clr-bg-secondary p-2">
         <div class="my-4" v-if="categories">
-          <select v-model="post.categoryId" class="input">
+          <select
+            v-model="post.categoryId"
+            @change="unsaved = true"
+            class="input"
+          >
             <option :value="null" selected>Category</option>
             <option
               v-for="category in categories"
@@ -81,6 +87,9 @@
       </div>
 
       <div class="flex flex-row flex-wrap justify-end space-x-2">
+        <div v-if="unsaved" class="text-sm text-clr-text-light my-auto">
+          Unsaved changes
+        </div>
         <div>
           <button class="button button-success" @click="savePost">
             <template v-if="post.published">Save Changes</template>
@@ -133,6 +142,20 @@ import vueFilePond from "vue-filepond";
 import "filepond/dist/filepond.min.css";
 import { FilePondOptionProps } from "filepond";
 const FilePond = vueFilePond();
+
+// unsaved changes warning
+const unsaved = ref(false);
+window.addEventListener("beforeunload", event => {
+  if (unsaved.value) {
+    const answer = window.confirm(
+      "Are you sure you want to leave? There are unsaved changes"
+    );
+    if (!answer) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+  }
+});
 
 export default defineComponent({
   name: "PostEdit",
@@ -332,6 +355,7 @@ export default defineComponent({
 
       try {
         await postService.update(post.value.id, post.value);
+        unsaved.value = false;
         root.$toasted.success("Saved!");
       } catch {
         root.$toasted.error("Error saving result");
@@ -386,8 +410,19 @@ export default defineComponent({
       filePondOptions,
       attachedFiles,
       imageUploading,
-      isModOrAbove
+      isModOrAbove,
+      unsaved
     };
+  },
+
+  beforeRouteLeave(to, from, next) {
+    if (unsaved.value) {
+      const answer = window.confirm(
+        "Are you sure you want to leave? There are unsaved changes"
+      );
+      if (answer) next();
+      else next(false);
+    }
   }
 });
 </script>
